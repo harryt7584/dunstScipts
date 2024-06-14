@@ -1,0 +1,39 @@
+#!/bin/bash
+
+case $1 in 
+	"")
+		exit 0
+		;;
+	repeat)
+		if [[ -z $(mpc current) ]]; then
+			MESSAGE=$(mpc | cut -d '%' -f2- | awk -F ' ' '{print $1, $2}' )
+		else
+			MESSAGE=$(mpc | awk 'NR == 3' |  cut -d '%' -f2- | awk -F ' ' '{print $1, $2}' )
+		fi
+		;;
+	random)
+		if [[ -z $(mpc current) ]]; then
+			MESSAGE="shuffle: $(mpc | cut -d '%' -f2- | awk -F ' ' '{print $4}' )"
+		else
+			MESSAGE="shuffle: $(mpc | awk 'NR == 3' |  cut -d '%' -f2- | awk -F ' ' '{print $4}' )"
+
+		fi
+		;;
+	single)
+		if [[ -z $(mpc current) ]]; then
+			MESSAGE=$(mpc | cut -d '%' -f2- | awk -F ' ' '{print $5, $6}' )
+		else
+			MESSAGE=$(mpc | awk 'NR == 3' |  cut -d '%' -f2- | awk -F ' ' '{print $5, $6}' )
+		fi
+		;;
+	consume)
+		if [[ -z $(mpc current) ]]; then
+			MESSAGE=$(mpc | cut -d '%' -f2- | awk -F ' ' '{print $7, $8}' )
+		else
+			MESSAGE=$(mpc | awk 'NR == 3' |  cut -d '%' -f2- | awk -F ' ' '{print $7, $8}' )
+		fi
+		;;
+esac
+
+dunstify -a "mode" "     $MESSAGE" -r 9990 -t 2000
+exit 0

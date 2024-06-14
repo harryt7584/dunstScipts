@@ -1,0 +1,24 @@
+#!/bin/bash
+
+VOLUME=$(pulsemixer --get-volume | cut -c 1,2,3 | cut -d ' ' -f 1)
+VOLUME=$(printf '%s\n'  "scale=2 ; $VOLUME / 150" | bc)
+VOLUME=$(printf '%s\n' "scale=4; 100*$VOLUME" | bc | cut -d '.' -f 1)
+
+if [[ $(pulsemixer --get-mute) -eq 1 ]]; then
+	VOLUME=0
+fi
+
+case $1 in
+	mpd)
+		if [[ -n $(mpc volume | awk -F ' ' '{print $2}' | cut -d '%' -f 1) ]]; then
+			VOLUME=$(mpc volume | awk -F ' ' '{print $2}' | cut -d '%' -f 1)
+		else
+			VOLUME=$(mpc volume | cut -d ':' -f 2 | cut -d '%' -f 1 | cut -d ' ' -f 2)
+		fi
+		dunstify -a "mpd_vol" -h int:value:$VOLUME "" -r 9990 -t 2000
+		exit 0
+		;;
+esac
+	
+dunstify -a "volume" -h int:value:$VOLUME "" -r 9990 -t 10000
+exit 0
